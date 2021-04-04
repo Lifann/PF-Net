@@ -1,11 +1,14 @@
 import numpy as np
 
 from matplotlib import pyplot as plt
+from matplotlib import cm
 
 
-def scatter_points(fname, xyz, color):
+def show_3d(save_path, cloud):
   fig = plt.figure(figsize=(100, 100))
   ax = plt.axes(projection='3d')
+  color = cloud.color / 255
+  xyz = cloud.data
 
-  ax.scatter3D(xyz[0, :], xyz[1, :], xyz[2, :], color='green')
-  plt.savefig(fname)
+  ax.scatter3D(xyz[:, 0], xyz[:, 1], xyz[:, 2], c=color)
+  plt.savefig(save_path)
