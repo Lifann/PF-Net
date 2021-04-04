@@ -5,6 +5,7 @@ Data structure of on handle of point cloud clutering data.
 import data_loader as dl
 import numpy as np
 import traceback
+import tensorflow as tf
 
 
 class PointCloud(object):
@@ -72,7 +73,7 @@ class PointCloud(object):
     if num_points < self.length:
       return None
 
-  def normolize(self):
+  def normalize(self):
     """
     Normalize data
     """

@@ -7,6 +7,7 @@ from matplotlib import cm
 def show_3d(save_path, cloud):
   fig = plt.figure(figsize=(100, 100))
   ax = plt.axes(projection='3d')
+  cloud.normalize()
   color = cloud.color / 255
   xyz = cloud.data
 
