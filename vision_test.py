@@ -1,11 +1,11 @@
 import vision
 import data_loader as dl
-import point_cloud as cloud
+import point_cloud as pcloud
 
 
 def test_save_fig(src, dest):
   arr, color = dl.arrays_from_file(src)
-  cloud.PointCloud(data=arr, color=color)
+  cloud = pcloud.PointCloud(data=arr, color=color)
   vision.show_3d(dest, cloud)
 
 
