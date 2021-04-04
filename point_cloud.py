@@ -13,7 +13,7 @@ class PointCloud(object):
   Point cloud data structure. The scale is always normalized.
   """
 
-  def __init__(self, data=None, color=None):
+  def __init__(self, category, data=None, color=None):
     """
     Create a point cloud
 
@@ -21,6 +21,11 @@ class PointCloud(object):
       data: coordinate list marked the point cloud.
       color: color list marked the point cloud color.
     """
+    if not isinstance(category, int):
+      raise TypeError('category should be an integer which indicates'
+                      'point cloud mass.')
+    self.category = category
+
     if data is None:
       self._data = None
     else:
@@ -58,10 +63,9 @@ class PointCloud(object):
     """
     pass
 
-  # TODO 
-  def down_sample(self, num_points, mode='center_random'):
+  def down_sample(self, num_points):
     """
-    Get a new down sampled PointCloud from self.
+    Get a new down sampled PointCloud from self, uniformly.
     
     Args:
       num_points: int. Number of down sampled point cloud.
@@ -72,6 +76,9 @@ class PointCloud(object):
     """
     if num_points < self.length:
       return None
+    else:
+      indices = np.random.choice(self.length, num_points, replace=False)
+      return PointCloud(self.category, self.data[indices], self.color[indices])
 
   def normalize(self):
     """
@@ -90,12 +97,6 @@ class PointCloud(object):
   @property
   def length(self):
     return self._data.shape[0]
-
-  # TODO
-  def show(self):
-    """
-    """
-    pass
 
   def save(self, fpath):
     """
