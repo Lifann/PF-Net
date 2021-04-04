@@ -3,11 +3,12 @@ import data_loader as dl
 import point_cloud as cloud
 
 
-def test_save_fig(fname):
-  arr, color = dl.arrays_from_file(fname)
+def test_save_fig(src, dest):
+  arr, color = dl.arrays_from_file(src)
   cloud.PointCloud(data=arr, color=color)
-  vision.show_3d(fname, cloud)
+  vision.show_3d(dest, cloud)
 
 
-fname = 'test_data/1.txt'
-test_save_fig(fname)
+src = 'test_data/11.txt'
+dest = 'tmp/11.png'
+test_save_fig(src, dest)
