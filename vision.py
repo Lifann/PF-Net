@@ -11,5 +11,5 @@ def show_3d(save_path, cloud):
   color = cloud.color / 255
   xyz = cloud.data
 
-  ax.scatter3D(xyz[:, 0], xyz[:, 1], xyz[:, 2], c=color)
+  ax.scatter3D(xyz[:, 0], xyz[:, 1], xyz[:, 2], c=color, marker='o', s=100)
   plt.savefig(save_path)

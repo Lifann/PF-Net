@@ -2,10 +2,12 @@
 Data structure of on handle of point cloud clutering data.
 """
 
+from copy import deepcopy
+
 import data_loader as dl
 import numpy as np
-import traceback
 import tensorflow as tf
+import traceback
 import utils
 
 
@@ -54,14 +56,16 @@ class PointCloud(object):
     """
     self._data, self._color = dl.arrays_from_file(filename)
 
-  # TODO
-  def crop(self, num_reserved, return_hollowed=False):
+  def crop(self, num_reserved, keep_data=False, return_hollowed=False, reuse=True):
     """
     Crop part of point cloud.
 
     Args:
       num_reserved: Points number reserved.
+      keep_data: bool. If true, keep croped area, and set them to primary point.
       return_hollowed: bool. Indicate whether if return hollowed part.
+      reuse: bool. If true, reuse data space of parent, otherwise create a new
+        data space from parent.
     
     Returns:
       PointClouds: remained part and hollowed part (optional).
@@ -73,10 +77,39 @@ class PointCloud(object):
     viewpoint = utils.random_view()
     distance = distance_to_point(self._data, viewpoint)
     indices = np.argsort(-distance)
+    cropped_indices = np.argsort(distance)
 
-    data = self._data[indices[:num_reserved]]
-    color = self._color[indices[:num_reserved]]
-    return PointCloud(self.category, data, color)
+    #if keep_data == True and reuse == False:
+    #  raise ValueError('Cannot keep data us not reuse memory space.')
+
+    if not reuse:
+      data = deepcopy(self._data)
+      color = deepcopy(self._color)
+    else:
+      data = self._data
+      color = self._color
+
+    if return_hollowed:
+      cropped_data = deepcopy(self._data)
+      cropped_color = deepcopy(self._color)
+
+    if keep_data:
+      if return_hollowed:
+        cropped_data = cropped_data[cropped_indices]
+        cropped_color = cropped_color[cropped_indices]
+      data[cropped_indices] = (0, 0, 0)
+    else:
+      if return_hollowed:
+        cropped_data = cropped_data[cropped_indices]
+        cropped_color = cropped_color[cropped_indices]
+      data = np.delete(data, cropped_indices, axis=0)
+      color = np.delete(color, cropped_indices, axis=0)
+
+    if return_hollowed:
+      return (PointCloud(self.category, data, color),
+              PointCloud(self.category, cropped_data, cropped_color)
+    else:
+      return PointCloud(self.category, data, color)
 
   def tf_crop(self, num_reserved, return_hollowed=False):
     """
@@ -90,7 +123,7 @@ class PointCloud(object):
     """
     viewpoint = utils.random_view()
     distance = distance_to_point(self._data, viewpoint)
-    _, indices = topk(distance k=num_reserved, sorted=True)
+    _, indices = topk(distance, k=num_reserved, sorted=True)
 
     data = tf.gather(self._tf_data, indices)
     color = tf.gather(self._tf_color, indices)
