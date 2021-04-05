@@ -76,7 +76,7 @@ class PointCloud(object):
                        ' than cloud points number.')
 
     viewpoint = utils.random_view()
-    distance = distance_to_point(self._data, viewpoint)
+    distance = utils.distance_to_point(self._data, viewpoint)
     indices = np.argsort(-distance)
     cropped_indices = np.argsort(distance)
 
