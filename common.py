@@ -80,7 +80,8 @@ def conv_layer(x, M1, M2,
                             stride,
                             activation=activation,
                             padding=padding)
-  return net(x)
+  conv_tensor = net(x)
+  return tf.squeeze(conv_tensor)
 
 
 def randomly_down_sample(x, num_points):
