@@ -52,9 +52,35 @@ def pinch(x, shape, name='', use_bias=False):
     return tf.matmul(tf.matmul(left_var, x), right_var)
 
 
-# TODO
-def conv_layer(x):
-  pass
+def conv_layer(x, M1, M2,
+               kernel_size=3, expand_dim=False,
+               activation=None, padding='same'):
+  """
+  filter = M1
+  kernel = arbitrary value.
+  int(M2 / stride) == 3 * M2 / M1 == 6     (1)
+  int(M2 / stride) == 3                    (2)
+  """
+  x = tf.reshape(1, M2, M1)
+  if expand_dim:
+    target_dim = int(3 * M2 / M1)
+  else:
+    target_dim = 3
+
+  test_strides = [int(M2 / target_dim), int(M2 / target_dim) + 1]
+  if int(M2 / test_strides[0]) == target_dim:
+    stride = test_strides[0]
+  elif int(M2 / test_strides[1]) == target_dim:
+    stride = test_strides[0]
+  else:
+    # This should never happen.
+    raise ValueError('Cannot get valid stride for convolution.')
+  net = keras.layers.Conv1D(M1,
+                            kernel_size,
+                            stride,
+                            activation=activation,
+                            padding=padding)
+  return net(x)
 
 
 def randomly_down_sample(x, num_points):
