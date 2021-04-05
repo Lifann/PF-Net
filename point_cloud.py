@@ -56,7 +56,7 @@ class PointCloud(object):
     """
     self._data, self._color = dl.arrays_from_file(filename)
 
-  def crop(self, num_reserved, remove_cropped=False, return_hollowed=False, reuse=True):
+  def crop(self, num_cropped, remove_cropped=False, return_hollowed=False, reuse=True):
     """
     Crop part of point cloud.
 
@@ -71,7 +71,7 @@ class PointCloud(object):
     Returns:
       PointClouds: remained part and hollowed part (optional).
     """
-    if num_reserved > self.length:
+    if num_cropped > self.length:
       raise ValueError('Reserved points number after crop must be less'
                        ' than cloud points number.')
 
@@ -79,7 +79,6 @@ class PointCloud(object):
     distance = utils.distance_to_point(self._data, viewpoint)
     indices = np.argsort(-distance)
     cropped_indices = np.argsort(distance)
-    num_cropped = self.length - num_reserved
 
     if not reuse:
       data = deepcopy(self._data)

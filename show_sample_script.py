@@ -19,7 +19,7 @@ for cat in category:
   save_path = 'tmp/{}_sample12288.png'.format(cat)
   vision.show_3d(save_path, cloud)
 
-  num_reserved = 12288
+  num_cropped = int(12288 / 4)
   cloud, cropped_cloud = cloud.crop(num_reserved,
                                     remove_cropped=False,
                                     return_hollowed=True,
