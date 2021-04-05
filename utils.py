@@ -1,0 +1,22 @@
+import numpy as np
+
+
+def random_view():
+  choice = [
+      np.array(1, 0, 0),
+      np.array(0, 0, 1),
+      np.array(1, 0, 1),
+      np.array(-1, 0, 0),
+      np.array(-1, 1, 0),
+  ]
+  # Randomly choose a viewpoint.
+  return ramdom.sample(choice, 1)
+
+def distance_to_point(arr, point):
+  tmp = arr - point
+  return np.sum(tmp * tmp, axis=1)
+
+def tf_distance_to_point(arr, point):
+  tmp = arr - point
+  return tf.reduce_sum(tmp * tmp, axis=1)
+

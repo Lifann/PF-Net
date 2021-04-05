@@ -6,6 +6,7 @@ import data_loader as dl
 import numpy as np
 import traceback
 import tensorflow as tf
+import utils
 
 
 class PointCloud(object):
@@ -54,17 +55,46 @@ class PointCloud(object):
     self._data, self._color = dl.arrays_from_file(filename)
 
   # TODO
-  def crop(self, radius):
+  def crop(self, num_reserved, return_hollowed=False):
     """
     Crop part of point cloud.
 
     Args:
-      radius: Radius of hollowed part.
+      num_reserved: Points number reserved.
+      return_hollowed: bool. Indicate whether if return hollowed part.
     
     Returns:
-      Tuple of PointClouds: hollowed part, and remained part.
+      PointClouds: remained part and hollowed part (optional).
     """
-    pass
+    if num_reserved > self.length:
+      raise ValueError('Reserved points number after crop must be less'
+                       ' than cloud points number.')
+
+    viewpoint = utils.random_view()
+    distance = distance_to_point(self._data, viewpoint)
+    indices = np.argsort(-distance)
+
+    data = self._data[indices[:num_reserved]]
+    color = self._color[indices[:num_reserved]]
+    return PointCloud(self.category, data, color)
+
+  def tf_crop(self, num_reserved, return_hollowed=False):
+    """
+    Crop in Tensorflow scope. 
+
+    Args:
+      numreserved
+    
+    Returns:
+      Tuple of tensors: croped (data, color)
+    """
+    viewpoint = utils.random_view()
+    distance = distance_to_point(self._data, viewpoint)
+    _, indices = topk(distance k=num_reserved, sorted=True)
+
+    data = tf.gather(self._tf_data, indices)
+    color = tf.gather(self._tf_color, indices)
+    return (data, color)
 
   def down_sample(self, num_points):
     """
@@ -77,7 +107,7 @@ class PointCloud(object):
       An PointCloud object, down sampled, if it is legal
       to execute down sampling.
     """
-    if num_points < self.length:
+    if num_points > self.length:
       return None
     else:
       indices = np.random.choice(self.length, num_points, replace=False)
@@ -90,7 +120,7 @@ class PointCloud(object):
     Returns:
       Downsampled data and color tensors.
     """
-    if num_points < self.length:
+    if num_points > self.length:
       return None
     else:
       indices = tf.random.uniform((num_points, ), minval=0, maxval=self.length, dtype=tf.int32)
