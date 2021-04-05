@@ -44,6 +44,9 @@ class PointCloud(object):
         raise ValueError('Each point in point cloud must dim-3.')
       self._color = np.array(color, dtype=np.float32) # Make a copy.
 
+      self._tf_data = tf.placeholder(tf.float32)
+      self._tf_color = tf.placeholder(tf.int32)
+
   def from_file(self, filename):
     """
     Get a point cloud from file.
@@ -51,9 +54,9 @@ class PointCloud(object):
     self._data, self._color = dl.arrays_from_file(filename)
 
   # TODO
-  def hollow(self, radius):
+  def crop(self, radius):
     """
-    Hollow part of point cloud.
+    Crop part of point cloud.
 
     Args:
       radius: Radius of hollowed part.
@@ -80,6 +83,24 @@ class PointCloud(object):
       indices = np.random.choice(self.length, num_points, replace=False)
       return PointCloud(self.category, self.data[indices], self.color[indices])
 
+  def tf_down_sample(self, num_points, return_color=False):
+    """
+    Down sampling in Tensorflow scope for better performance.
+
+    Returns:
+      Downsampled data and color tensors.
+    """
+    if num_points < self.length:
+      return None
+    else:
+      indices = tf.random.uniform((num_points, ), minval=0, maxval=self.length, dtype=tf.int32)
+      down_sampled_data = tf.gather(self.tf_data, indices)
+      down_sampled_color = tf.gather(self.tf_color, indices)
+
+      if return_color:
+        return (down_sampled_data, down_sampled_color)
+      return down_sampled_data
+
   def normalize(self):
     """
     Normalize data
@@ -91,8 +112,16 @@ class PointCloud(object):
     return self._data
 
   @property
+  def tf_data(self):
+    return self._tf_data
+
+  @property
   def color(self):
     return self._color
+
+  @property
+  def tf_color(self):
+    return self._tf_color
 
   @property
   def length(self):
