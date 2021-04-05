@@ -77,7 +77,6 @@ class PointCloud(object):
 
     viewpoint = utils.random_view()
     distance = utils.distance_to_point(self._data, viewpoint)
-    indices = np.argsort(-distance)
     cropped_indices = np.argsort(distance)
 
     if not reuse:
@@ -95,7 +94,7 @@ class PointCloud(object):
       if return_hollowed:
         cropped_data = cropped_data[cropped_indices[:num_cropped]]
         cropped_color = cropped_color[cropped_indices[:num_cropped]]
-      data[cropped_indices[:num_cropped]] = (0., 0., 0.)
+      data[cropped_indices[:num_cropped], :] = (0., 0., 0.)
     else:
       if return_hollowed:
         cropped_data = cropped_data[cropped_indices[:num_cropped]]

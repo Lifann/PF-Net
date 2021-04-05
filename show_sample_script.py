@@ -21,7 +21,7 @@ for cat in category:
 
   num_cropped = int(12288 / 4)
   cloud, cropped_cloud = cloud.crop(num_cropped,
-                                    remove_cropped=False,
+                                    remove_cropped=True,
                                     return_hollowed=True,
                                     reuse=True)
   print('[DEBUG] after crop {}, cloud shape: {}, cropped_cloud: {}'.format(
