@@ -11,7 +11,7 @@ def random_view():
       np.array((-1, 1, 0), dtype=np.float32),
   ]
   # Randomly choose a viewpoint.
-  return ramdom.sample(choice, 1)
+  return random.sample(choice, 1)
 
 def distance_to_point(arr, point):
   tmp = arr - point

@@ -14,7 +14,7 @@ for cat in category:
   save_path = 'tmp/{}.png'.format(cat)
   vision.show_3d(save_path, cloud)
 
-  cloud.down_sample(12288)
+  cloud = cloud.down_sample(12288)
   print('[DEBUG] after down sample, cloud shape: ', cloud.data.shape)
   save_path = 'tmp/{}_sample12288.png'.format(cat)
   vision.show_3d(save_path, cloud)
