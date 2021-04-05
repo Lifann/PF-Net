@@ -6,7 +6,7 @@ category = list(range(9, 12))
 
 for cat in category:
   src_filename = 'test_data/{}.txt'.format(cat)
-  cloud = pcloud.PointCloud(category)
+  cloud = pcloud.PointCloud(cat)
   cloud.from_file(src_filename)
   cloud.normalize()
 

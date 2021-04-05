@@ -105,7 +105,7 @@ class PointCloud(object):
 
     if return_hollowed:
       return (PointCloud(self.category, data, color),
-              PointCloud(self.category, cropped_data, cropped_color)
+              PointCloud(self.category, cropped_data, cropped_color))
     else:
       return PointCloud(self.category, data, color)
 

@@ -1,13 +1,14 @@
 import numpy as np
+import random
 
 
 def random_view():
   choice = [
-      np.array(1, 0, 0),
-      np.array(0, 0, 1),
-      np.array(1, 0, 1),
-      np.array(-1, 0, 0),
-      np.array(-1, 1, 0),
+      np.array((1, 0, 0), dtype=np.float32),
+      np.array((0, 0, 1), dtype=np.float32),
+      np.array((1, 0, 1), dtype=np.float32),
+      np.array((-1, 0, 0), dtype=np.float32),
+      np.array((-1, 1, 0), dtype=np.float32),
   ]
   # Randomly choose a viewpoint.
   return ramdom.sample(choice, 1)
