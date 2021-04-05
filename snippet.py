@@ -92,5 +92,6 @@ def MRE(incomplete_cloud, k=2, nn_sizes=[], agg_num=4):
   #return tf.transpose(final_feature_vec)  # (1, R)
 
 
+# TODO
 def PPD(final_feature_vec)
   pass
