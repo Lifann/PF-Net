@@ -20,13 +20,13 @@ for cat in category:
   vision.show_3d(save_path, cloud)
 
   num_cropped = int(12288 / 4)
-  cloud, cropped_cloud = cloud.crop(num_reserved,
+  cloud, cropped_cloud = cloud.crop(num_cropped,
                                     remove_cropped=False,
                                     return_hollowed=True,
                                     reuse=True)
   print('[DEBUG] after crop {}, cloud shape: {}, cropped_cloud: {}'.format(
-        num_reserved, cloud.data.shape, cropped_cloud.data.shape))
-  save_path = 'tmp/{}_crop12288.png'.format(cat)
+        num_cropped, cloud.data.shape, cropped_cloud.data.shape))
+  save_path = 'tmp/{}_crop{}.png'.format(cat, num_cropped)
   vision.show_3d(save_path, cropped_cloud)
   save_path = 'tmp/{}_incomplete12288.png'.format(cat)
   vision.show_3d(save_path, cloud)

@@ -95,13 +95,13 @@ class PointCloud(object):
       if return_hollowed:
         cropped_data = cropped_data[cropped_indices[:num_cropped]]
         cropped_color = cropped_color[cropped_indices[:num_cropped]]
-      data[cropped_indices] = (0, 0, 0)
+      data[cropped_indices[:num_cropped]] = (0., 0., 0.)
     else:
       if return_hollowed:
         cropped_data = cropped_data[cropped_indices[:num_cropped]]
         cropped_color = cropped_color[cropped_indices[:num_cropped]]
-      data = np.delete(data, cropped_indices, axis=0)
-      color = np.delete(color, cropped_indices, axis=0)
+      data = np.delete(data, cropped_indices[:num_cropped], axis=0)
+      color = np.delete(color, cropped_indices[:num_cropped], axis=0)
 
     if return_hollowed:
       return (PointCloud(self.category, data, color),
