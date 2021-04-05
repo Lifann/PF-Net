@@ -11,15 +11,19 @@ def show_3d(save_path, cloud, view=None):
   color = cloud.color / 255
   xyz = cloud.data
 
+  xl = (np.min(xyz[:, 0]), np.max(xyz[:, 0]))
+  yl = (np.min(xyz[:, 1]), np.max(xyz[:, 1]))
+  zl = (np.min(xyz[:, 2]), np.max(xyz[:, 2]))
+
   ax.scatter(xs=xyz[:, 0],
              ys=xyz[:, 1],
              zs=xyz[:, 2],
-             s=12,
+             s=20,
              alpha=1.0,
              c=color,
              marker='o')
-  if view:
-    plt.set_xlim(view[0])
-    plt.set_ylim(view[1])
-    plt.set_zlim(view[2])
+
+  ax.set_xlim(xl)
+  ax.set_ylim(yl)
+  ax.set_zlim(zl)
   plt.savefig(save_path)
