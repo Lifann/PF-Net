@@ -108,23 +108,44 @@ class PointCloud(object):
     else:
       return PointCloud(self.category, data, color)
 
-  def tf_crop(self, num_reserved, return_hollowed=False):
-    """
-    Crop in Tensorflow scope. 
+  #def tf_crop(self, num_cropped, remove_cropped=False, return_hollowed=False, reuse=True):
+  #  """
+  #  Crop in Tensorflow scope.
 
-    Args:
-      numreserved
-    
-    Returns:
-      Tuple of tensors: croped (data, color)
-    """
-    viewpoint = utils.random_view()
-    distance = utils.distance_to_point(self._data, viewpoint)
-    _, indices = topk(distance, k=num_reserved, sorted=True)
+  #  Args:
+  #    num_reserved: Points number reserved.
+  #    remove_cropped: bool. If true, remove croped area from data, else set them
+  #      to primary point.
+  #    return_hollowed: bool. Indicate whether if return hollowed part.
+  #    reuse: bool. If true, reuse data space of parent, otherwise create a new
+  #      data space from parent.
+  #  
+  #  Returns:
+  #    Tuple of tensors. If return_hollowed is true, then return:
+  #      (incomplete data tensor, incomplete color tensor, cropped data tensor, cropped color tensor)
+  #    otherwise:
+  #      (incomplete data tensor, incomplete color tensor)
+  #  """
+  #  viewpoint = utils.random_view()
+  #  distance = utils.tf_distance_to_point(self._data, viewpoint)
+  #  num_reserved = self.length - num_cropped
+  #  _, indices = topk(distance, k=num_reserved, sorted=True)
+  #  _, cropped_indices = topk(distance, k=num_cropped, sorted=False)
 
-    data = tf.gather(self._tf_data, indices)
-    color = tf.gather(self._tf_color, indices)
-    return (data, color)
+  #  if not reuse:
+  #    raise ValueError('Always reuse in Tensorflow scope.')
+  #  if return_hollowed:
+  #    cropped_data = tf.gather(self._tf_data, cropped_indices)
+  #    cropped_color = tf.gather(self._tf_color, cropped_indices)
+
+  #  if remove_cropped:
+  #    data = tf.gather(self._tf_data, indices)
+  #    color = tf.gather(self._tf_color, indices)
+  #  else:
+  #    data = tf.concat([data, cropped_data], 0)
+  #    color = tf.concat([color, cropped_color], 0)
+
+  #  return (data, color)
 
   def down_sample(self, num_points):
     """
