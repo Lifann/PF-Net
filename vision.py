@@ -4,8 +4,8 @@ from matplotlib import pyplot as plt
 from matplotlib import cm
 
 
-def show_3d(save_path, cloud, 3d_space=None):
-  fig = plt.figure(figsize=(100, 100))
+def show_3d(save_path, cloud, view=None):
+  fig = plt.figure(figsize=(13, 13))
   ax = plt.axes(projection='3d')
   cloud.normalize()
   color = cloud.color / 255
@@ -18,8 +18,8 @@ def show_3d(save_path, cloud, 3d_space=None):
              alpha=1.0,
              c=color,
              marker='o')
-  if 3d_space:
-    plt.set_xlim(3d_space[0])
-    plt.set_ylim(3d_space[1])
-    plt.set_zlim(3d_space[2])
+  if view:
+    plt.set_xlim(view[0])
+    plt.set_ylim(view[1])
+    plt.set_zlim(view[2])
   plt.savefig(save_path)

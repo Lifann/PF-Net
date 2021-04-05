@@ -10,13 +10,21 @@ for cat in category:
   cloud.from_file(src_filename)
   cloud.normalize()
 
+  view = []
+  x_data = cloud.data[:, 0]
+  y_data = cloud.data[:, 0]
+  z_data = cloud.data[:, 0]
+  view.append([np.min(x_data), np.max(x_data)])
+  view.append([np.min(y_data), np.max(y_data)])
+  view.append([np.min(z_data), np.max(z_data)])
+
   # show origin figure
   save_path = 'tmp/{}.png'.format(cat)
-  vision.show_3d(save_path, cloud)
+  vision.show_3d(save_path, cloud, view=view)
 
   cloud = cloud.down_sample(16384)
   save_path = 'tmp/{}_sample{}.png'.format(cat, 16384)
-  vision.show_3d(save_path, cloud)
+  vision.show_3d(save_path, cloud, view=view)
 
   num_cropped = 16384 - 12288
   cloud, cropped_cloud = cloud.crop(num_cropped,
@@ -24,6 +32,6 @@ for cat in category:
                                     return_hollowed=True,
                                     reuse=True)
   save_path = 'tmp/{}_crop{}.png'.format(cat, num_cropped)
-  vision.show_3d(save_path, cropped_cloud)
+  vision.show_3d(save_path, cropped_cloud, view=view)
   save_path = 'tmp/{}_incomplete{}.png'.format(cat, 16384)
-  vision.show_3d(save_path, cloud)
+  vision.show_3d(save_path, cloud, view=view)
