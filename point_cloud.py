@@ -79,6 +79,7 @@ class PointCloud(object):
     distance = utils.distance_to_point(self._data, viewpoint)
     indices = np.argsort(-distance)
     cropped_indices = np.argsort(distance)
+    num_cropped = self.length - num_reserved
 
     if not reuse:
       data = deepcopy(self._data)
@@ -93,13 +94,13 @@ class PointCloud(object):
 
     if not remove_cropped:
       if return_hollowed:
-        cropped_data = cropped_data[cropped_indices]
-        cropped_color = cropped_color[cropped_indices]
+        cropped_data = cropped_data[cropped_indices[:num_cropped]]
+        cropped_color = cropped_color[cropped_indices[:num_cropped]]
       data[cropped_indices] = (0, 0, 0)
     else:
       if return_hollowed:
-        cropped_data = cropped_data[cropped_indices]
-        cropped_color = cropped_color[cropped_indices]
+        cropped_data = cropped_data[cropped_indices[:num_cropped]]
+        cropped_color = cropped_color[cropped_indices[:num_cropped]]
       data = np.delete(data, cropped_indices, axis=0)
       color = np.delete(color, cropped_indices, axis=0)
 
@@ -120,7 +121,7 @@ class PointCloud(object):
       Tuple of tensors: croped (data, color)
     """
     viewpoint = utils.random_view()
-    distance = distance_to_point(self._data, viewpoint)
+    distance = utils.distance_to_point(self._data, viewpoint)
     _, indices = topk(distance, k=num_reserved, sorted=True)
 
     data = tf.gather(self._tf_data, indices)
