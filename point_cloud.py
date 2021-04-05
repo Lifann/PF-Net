@@ -56,13 +56,14 @@ class PointCloud(object):
     """
     self._data, self._color = dl.arrays_from_file(filename)
 
-  def crop(self, num_reserved, keep_data=False, return_hollowed=False, reuse=True):
+  def crop(self, num_reserved, remove_cropped=False, return_hollowed=False, reuse=True):
     """
     Crop part of point cloud.
 
     Args:
       num_reserved: Points number reserved.
-      keep_data: bool. If true, keep croped area, and set them to primary point.
+      remove_cropped: bool. If true, remove croped area from data, else set them
+        to primary point.
       return_hollowed: bool. Indicate whether if return hollowed part.
       reuse: bool. If true, reuse data space of parent, otherwise create a new
         data space from parent.
@@ -79,9 +80,6 @@ class PointCloud(object):
     indices = np.argsort(-distance)
     cropped_indices = np.argsort(distance)
 
-    #if keep_data == True and reuse == False:
-    #  raise ValueError('Cannot keep data us not reuse memory space.')
-
     if not reuse:
       data = deepcopy(self._data)
       color = deepcopy(self._color)
@@ -93,7 +91,7 @@ class PointCloud(object):
       cropped_data = deepcopy(self._data)
       cropped_color = deepcopy(self._color)
 
-    if keep_data:
+    if not remove_cropped:
       if return_hollowed:
         cropped_data = cropped_data[cropped_indices]
         cropped_color = cropped_color[cropped_indices]

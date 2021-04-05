@@ -19,4 +19,10 @@ for cat in category:
   save_path = 'tmp/{}_sample12288.png'.format(cat)
   vision.show_3d(save_path, cloud)
 
-  cloud.crop()
+  num_reserved = 12288
+  cloud, cropped_cloud = cloud.crop(num_reserved,
+                                    remove_cropped=False,
+                                    return_hollowed=True,
+                                    reuse=True)
+  print('[DEBUG] after crop {}, cloud shape: {}, cropped_cloud: {}'.format(
+        num_reserved, cloud.data.shape, cropped_cloud.data.shape))
