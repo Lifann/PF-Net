@@ -137,9 +137,9 @@ def PPD(feature_vec,
                                  kernel_size=3,
                                  expand_dim=True,
                                  activation='relu')
-  detail_map = tf.reshape(detail_map, (M2, M / M2, 3))
+  detail_map = tf.reshape(detail_map, (M2, int(M / M2), 3))
 
-  secondary_fc = common.dense_layer(final_feature_vec,
+  secondary_fc = common.dense_layer(feature_vec,
                                     FC_sizes[1],
                                     use_bias=True,
                                     use_bn=False,
@@ -148,17 +148,17 @@ def PPD(feature_vec,
   secondary_map = common.pinch_vec(secondary_fc, M1 * M2)
   secondary_map = tf.reshape(secondary_map, (M1, M2))
   secondary_map = common.conv_layer(secondary_map, M1, M2,
-                                 kernel_size=3,
-                                 expand_dim=True,
-                                 activation='relu')
+                                    kernel_size=3,
+                                    expand_dim=True,
+                                    activation='relu')
   secondary_map = tf.reshape(secondary_map, (M2, int(M2 / M1), 3))
 
-  primary_fc = common.dense_layer(final_feature_vec,
-                                    FC_sizes[1],
-                                    use_bias=True,
-                                    use_bn=False,
-                                    is_training=ctx.is_training,
-                                    activation='relu')
+  primary_fc = common.dense_layer(feature_vec,
+                                  FC_sizes[1],
+                                  use_bias=True,
+                                  use_bn=False,
+                                  is_training=ctx.is_training,
+                                  activation='relu')
   primary_map = common.pinch_vec(primary_fc, 3 * M1)
   primary_map = tf.reshape(primary_map, (M1, 3))
   primary_map = common.conv_layer(primary_map, M1, 3,

@@ -99,3 +99,6 @@ def train():
   #  for idx, cloud in enumerate(train_clouds):
   #    session.run(model.train_op, feed_dict={model.x: cloud.data,
   #                                           model.y_gt: })
+
+if __name__ == '__main__':
+  train()
