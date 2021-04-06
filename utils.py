@@ -31,7 +31,9 @@ def size_from_shape(shape):
     t *= x
   return t
 
+
 def index_from_file(fname):
   fname = os.path.basename(fname)
   str_id = fname.split('.')[0]
   return int(str_id)
+

@@ -3,7 +3,7 @@ import point_cloud as pcloud
 import vision
 
 # category : 9 - 12
-category = list(range(9, 12))
+category = list(range(9, 10))
 
 for cat in category:
   src_filename = 'test_data/{}.txt'.format(cat)

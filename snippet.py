@@ -177,21 +177,26 @@ def PPD(feature_vec,
   return primary_out, secondary_out, detail_out
 
 
+# TODO: Use chamfer-distance
 def g_loss_fn(y_bold, y_mid, y_fine,
               y_gt_bold, y_gt_mid, y_gt_fine,
               eta=0.001):
   sub_bold = y_bold - y_gt_bold
   dist_bold = tf.reduce_sum(sub_bold * sub_bold, axis=1)
+  dist_bold = tf.reduce_mean(dist_bold)
 
   sub_mid = y_mid - y_gt_mid
   dist_mid = tf.reduce_sum(sub_mid * sub_mid, axis=1)
+  dist_mid = tf.reduce_mean(dist_mid)
 
   sub_fine = y_fine - y_gt_fine
   dist_fine = tf.reduce_sum(sub_fine * sub_fine, axis=1)
+  dist_fine = tf.reduce_mean(dist_fine)
 
   loss = dist_fine            \
        + eta * dist_mid       \
        + 2 * eta * dist_bold
+  print('[DEBUG] g_loss: ', loss.shape)
   return loss
 
 
@@ -204,6 +209,7 @@ def ad_loss_fn(y, y_gt,
     ts = CMLP(x, CMLP_nn_sizes, name='ad_loss_CMLP', use_bn=True,
               activation='relu', agg_num=agg_num,
               use_legacy=True)  # (R, 1)
+    ts = tf.reshape(ts, (1, -1))
     for i, size in enumerate(nn_sizes):
       layer_name = 'g_loss_linear/' + str(i) + '_' + str(size)
       ts = common.dense_layer(ts, size, name=layer_name, use_bias=True,
@@ -213,11 +219,16 @@ def ad_loss_fn(y, y_gt,
 
   with tf.variable_scope('g_loss', default_name='g_loss',
                          reuse=tf.AUTO_REUSE):
+    print('[DEBUG] y: ', y.shape)
+    print('[DEBUG] y_gt: ', y_gt.shape)
     logit = struct_fn(y)
     logit_gt = struct_fn(y_gt)
+    print('[DEBUG] logit: ', logit.shape)
+    print('[DEBUG] logit_gt: ', logit_gt.shape)
 
     ad_loss = tf.nn.sigmoid_cross_entropy_with_logits(
         logits=tf.reshape(logit, (-1, 1)),
         labels=tf.reshape(logit_gt, (-1, 1)),
     )
+    print('[DEBUG] ad_los: ', ad_loss.shape)
     return ad_loss

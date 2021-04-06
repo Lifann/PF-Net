@@ -57,7 +57,7 @@ class Model(object):
         self.y_gt_fine,
         CMLP_nn_sizes=ctx.ADLOSS_CMLP_nn_size,
         agg_num=ctx.ADLOSS_agg_num,
-        nn_sizes=ctx.ADLOSS_nn_size)
+        nn_sizes=ctx.ADLOSS_nn_sizes)
 
     self.loss = ctx.loss_coef * self.g_loss  \
               + (1 - ctx.loss_coef) * self.ad_loss
@@ -73,7 +73,7 @@ class Model(object):
     """
     Create multiple resolution inputs for y_gt.
     """
-    self.y_gt_bold = tf.placeholder(tf.float32)
-    self.y_gt_mid = tf.placeholder(tf.float32)
+    self.y_gt_bold = tf.placeholder(tf.float32, shape=(ctx.PPD_M1, 3))
+    self.y_gt_mid = tf.placeholder(tf.float32, shape=(ctx.PPD_M2, 3))
     self.y_gt_fine = self.y_gt
 

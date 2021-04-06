@@ -9,8 +9,11 @@ import argparse
 import common
 import data_loader as dl
 import os
+import sys
 import tensorflow as tf
+import time
 import utils
+import vision
 
 
 parser = argparse.ArgumentParser()
@@ -18,7 +21,7 @@ parser = argparse.ArgumentParser()
 # train conf
 parser.add_argument('--dataset', type=str, default='test_data', help='dataset path')
 parser.add_argument('--gpu', type=int, default=-1, help='GPU id used. -1 means not use any GPU.')
-parser.add_argument('--epoch_num', type=int, default=1, help='epoch number')
+parser.add_argument('--epoch_num', type=int, default=200, help='epoch number')
 parser.add_argument('--check_interval', type=int, default=10, help='steps interval for check')
 
 # hyper-params
@@ -51,6 +54,7 @@ def train():
   train_clouds_y_bold = []
   train_clouds_y_mid = []
   train_clouds_y_fine = []
+  train_clouds = []
 
   test_clouds_x = []
   test_clouds_y_bold = []
@@ -65,6 +69,7 @@ def train():
     cloud.normalize()
 
     cloud = cloud.down_sample(ctx.num_sampled)
+    train_clouds.append(cloud)
 
     incomplete_cloud, cropped_cloud = cloud.crop(
         ctx.num_cropped,
@@ -73,11 +78,14 @@ def train():
         reuse=True)
     cropped_cloud_bold, cropped_cloud_mid, cropped_cloud_fine =  \
         common.get_multi_resolution_clouds(cropped_cloud)
+    print('[info] crop data: incomplete part: {}, cropped part: {}'.format(
+          incomplete_cloud.data.shape, cropped_cloud.data.shape))
 
     train_clouds_x.append(incomplete_cloud)
     train_clouds_y_bold.append(cropped_cloud_bold)
     train_clouds_y_mid.append(cropped_cloud_mid)
     train_clouds_y_fine.append(cropped_cloud_fine)
+    print('[info] Load train data: {}'.format(afile))
 
   ## Load testing data for check.
   for idx, afile in enumerate(test_files):
@@ -100,16 +108,50 @@ def train():
     test_clouds_y_bold.append(cropped_cloud_bold)
     test_clouds_y_mid.append(cropped_cloud_mid)
     test_clouds_y_fine.append(cropped_cloud_fine)
+    print('[info] Load test data: {}'.format(afile))
 
   config = tf.ConfigProto()
   config.inter_op_parallelism_threads = 0
   config.intra_op_parallelism_threads = 0
   session = tf.Session(config=config)
+  session.run(tf.global_variables_initializer())
 
-  #for epoch in range(args.epoch_num):
-  #  for idx, cloud in enumerate(train_clouds):
-  #    session.run(model.train_op, feed_dict={model.x: cloud.data,
-  #                                           model.y_gt: })
+  #### show at start
+  index = train_files.index('test_data/train/9.txt')
+  mark = 9
+  print('[debug] index = ', index)
+  save_path = 'tmp/data_{}_sampled.png'.format(mark)
+  vision.show_3d(save_path, train_clouds[index])
+
+  save_path = 'tmp/data_{}_incomplete.png'.format(mark)
+  vision.show_3d(save_path, train_clouds_x[index])
+
+  save_path = 'tmp/data_{}_cropped.png'.format(mark)
+  vision.show_3d(save_path, train_clouds_y_fine[index])
+  ####
+
+  step = 0
+  for epoch in range(args.epoch_num):
+
+    for idx, _ in enumerate(train_clouds_x):
+      start_time = time.time()
+      _, loss = session.run(
+          [model.train_op, model.loss],
+          feed_dict={model.x: train_clouds_x[idx].data,
+                     model.y_gt_bold: train_clouds_y_bold[idx].data,
+                     model.y_gt_mid: train_clouds_y_mid[idx].data,
+                     model.y_gt_fine: train_clouds_y_fine[idx].data})
+      step += 1
+      end_time = time.time()
+      step_cost = end_time - start_time
+      print('[info] epoch: {}, step={}, loss={}'.format(epoch, step, loss))
+      if step % 100 == 0:
+        data = session.run(
+            model.y_fine,
+            feed_dict={model.x: train_clouds_x[idx].data})
+        save_path = 'tmp/train/cat{}_step{}_pred.png'.format(mark, step)
+        vision.show_3d_data(save_path, data, train_clouds_y_fine[index].color)
+      
 
 if __name__ == '__main__':
   train()

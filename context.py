@@ -42,7 +42,7 @@ class Context(object):
     # ADLOSS
     self.ADLOSS_CMLP_nn_size = [64, 64, 128, 256]
     self.ADLOSS_agg_num = 3
-    self.ADLOSS_nn_size=[256, 128, 16, 1]
+    self.ADLOSS_nn_sizes=[256, 128, 16, 1]
 
     # details
     self.max_pool_kernel = (1, 1, 3, 1)
