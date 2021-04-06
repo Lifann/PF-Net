@@ -33,6 +33,9 @@ class Context(object):
     self.PPD_M2 = 128
     self.PPD_FC_sizes = [1024, 512, 256]
 
+    # AD
+    self.AD_agg_num = 3
+
     # GLOSS
     self.GLOSS_coef = 0.2
 

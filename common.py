@@ -1,4 +1,5 @@
 from tensorflow import keras
+from tensorflow import initializers
 from tensorflow.python.ops import variable_scope
 
 from context import ctx
@@ -31,11 +32,11 @@ def dense_layer(x,
 def _legacy_dense_layer(x, size, name='legacy_dense',
                         use_bn='relu',
                         is_training=True,
-                        acitvation='relu'):
+                        activation='relu'):
   shape = (x.shape.as_list()[-1], size)
   var =tf.get_variable(
       name, dtype=tf.float32, shape=shape,
-      initializer=truncated_normal())
+      initializer=initializers.truncated_normal())
   ts = tf.matmul(x, var)
   if use_bn:
     ts = tf.layers.batch_normalization(ts, training=is_training)

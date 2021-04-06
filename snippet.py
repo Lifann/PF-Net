@@ -181,13 +181,13 @@ def g_loss_fn(y_bold, y_mid, y_fine,
               y_gt_bold, y_gt_mid, y_gt_fine,
               eta=0.001):
   sub_bold = y_bold - y_gt_bold
-  dsit_bold = tf.reduce_sum(sub_bold * sub_bold, axis=1)
+  dist_bold = tf.reduce_sum(sub_bold * sub_bold, axis=1)
 
   sub_mid = y_mid - y_gt_mid
-  dsit_mid = tf.reduce_sum(sub_mid * sub_mid, axis=1)
+  dist_mid = tf.reduce_sum(sub_mid * sub_mid, axis=1)
 
   sub_fine = y_fine - y_gt_fine
-  dsit_fine = tf.reduce_sum(sub_fine * sub_fine, axis=1)
+  dist_fine = tf.reduce_sum(sub_fine * sub_fine, axis=1)
 
   loss = dist_fine            \
        + eta * dist_mid       \
@@ -197,14 +197,14 @@ def g_loss_fn(y_bold, y_mid, y_fine,
 
 # TODO: Must share variables
 def ad_loss_fn(y, y_gt,
-              CMLP_nn_sizes=[64, 64, 128, 256],
-              agg_num=3,
-              nn_sizes=[256, 128, 16, 1]):
+               CMLP_nn_sizes=[64, 64, 128, 256],
+               agg_num=ctx.AD_agg_num,
+               nn_sizes=[256, 128, 16, 1]):
   def struct_fn(x):
     ts = CMLP(x, CMLP_nn_sizes, name='ad_loss_CMLP', use_bn=True,
-              activation='relu', agg_num=CMLP_agg_num,
+              activation='relu', agg_num=agg_num,
               use_legacy=True)  # (R, 1)
-    for i, size in enumerate(nn_size):
+    for i, size in enumerate(nn_sizes):
       layer_name = 'g_loss_linear/' + str(i) + '_' + str(size)
       ts = common.dense_layer(ts, size, name=layer_name, use_bias=True,
                               use_bn=True, is_training=ctx.is_training,

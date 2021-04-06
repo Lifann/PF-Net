@@ -59,13 +59,13 @@ class Model(object):
         agg_num=ctx.ADLOSS_agg_num,
         nn_sizes=ctx.ADLOSS_nn_size)
 
-    self.loss = ctx.loss_coef * g_loss  \
-              + (1 - ctx.loss_coef) * ad_loss
+    self.loss = ctx.loss_coef * self.g_loss  \
+              + (1 - ctx.loss_coef) * self.ad_loss
 
-    self.optimizer = tf.train.adam(learning_rate=ctx.learning_rate,
-                                   beta1=ctx.beta1,
-                                   beta2=ctx.beta2,
-                                   epsilon=ctx.epsilon)
+    self.optimizer = tf.train.AdamOptimizer(learning_rate=ctx.learning_rate,
+                                            beta1=ctx.beta1,
+                                            beta2=ctx.beta2,
+                                            epsilon=ctx.epsilon)
 
     self.train_op = self.optimizer.minimize(self.loss)
 
