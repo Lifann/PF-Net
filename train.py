@@ -22,7 +22,7 @@ parser.add_argument('--check_interval', type=int, default=10, help='steps interv
 
 # hyper-params
 parser.add_argument('--learning_rate', type=float, default=0.00001, help='learning_rate')
-parser.add_argument('--weight_decay'. type=float, default=0.001)
+parser.add_argument('--weight_decay', type=float, default=0.001)
 args = parser.parse_args()
 
 ctx.device = '/CPU:0' if args.gpu < 0 else '/GPU:{}'.format(args.gpu)

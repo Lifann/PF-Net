@@ -30,7 +30,7 @@ def dense_layer(x,
 
 def _legacy_dense_layer(x, size, name='legacy_dense',
                         use_bn='relu',
-                        is_training=True,:
+                        is_training=True,
                         acitvation='relu'):
   shape = (x.shape.as_list()[-1], size)
   var =tf.get_variable(

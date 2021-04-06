@@ -9,7 +9,7 @@ import numpy as np
 class Model(object):
   def __init__(self,
                x=tf.placeholder(tf.float32, shape=(ctx.num_incomplete, 3)),
-               y_gt=tf.placeholder(tf.float32, shape=(ctx.num_cropped, 3)))
+               y_gt=tf.placeholder(tf.float32, shape=(ctx.num_cropped, 3))):
     """
     x: tensor. cropped input tensor.
     y_gt: tensor. cropped output tensor.
@@ -44,7 +44,7 @@ class Model(object):
                     FC_sizes=ctx.PPD_FC_sizes)
 
     self.g_loss = snippet.g_loss_fn(
-        self.y_bold
+        self.y_bold,
         self.y_mid,
         self.y_fine,
         self.y_gt_bold,
@@ -59,7 +59,7 @@ class Model(object):
         agg_num=ctx.ADLOSS_agg_num,
         nn_sizes=ctx.ADLOSS_nn_size)
 
-    self.loss = ctx.loss_coef * g_loss
+    self.loss = ctx.loss_coef * g_loss  \
               + (1 - ctx.loss_coef) * ad_loss
 
     self.optimizer = tf.train.adam(learning_rate=ctx.learning_rate,
