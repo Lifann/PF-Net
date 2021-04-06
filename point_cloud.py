@@ -16,7 +16,9 @@ class PointCloud(object):
   Point cloud data structure. The scale is always normalized.
   """
 
-  def __init__(self, category, data=None, color=None):
+  def __init__(self, category, data=None, color=None,
+               tf_data=tf.placeholder(tf.float32),
+               tf_color=tf.placeholder(tf.int32)):
     """
     Create a point cloud
 
@@ -47,8 +49,8 @@ class PointCloud(object):
         raise ValueError('Each point in point cloud must dim-3.')
       self._color = np.array(color, dtype=np.float32) # Make a copy.
 
-      self._tf_data = tf.placeholder(tf.float32)
-      self._tf_color = tf.placeholder(tf.int32)
+      self._tf_data = tf_data
+      self._tf_color = tf_color
 
   def from_file(self, filename):
     """

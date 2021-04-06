@@ -1,22 +1,52 @@
 from tensorflow import keras
 from tensorflow.python.ops import variable_scope
 
-import coommon
+from context import ctx
+
 import tensorflow as tf
 
 
 def dense_layer(x,
                 size,
+                name='dense',
+                use_bias=False,
                 use_bn=False,
                 is_training=True,
                 activation=None,
+                use_legacy=False,
                 **kwargs):
-  net = keras.layers.Dense(size, use_bias=True, **kwargs)
+  if use_legacy:
+    return _legacy_dense_layer(x, size, name=name, use_bn=use_bn,
+                               is_training=is_training, activation=activation)
+
+  net = keras.layers.Dense(size, name=name, activation=activation,
+                           use_bias=use_bias, **kwargs)
   x = net(x)
   if use_bn:
-    bn = keras.layers.BatchNormalization()
+    bn = keras.layers.BatchNormalization(name=name + '/BN')
     x = bn(x, training=is_training, **kwargs)
   return x
+
+
+def _legacy_dense_layer(x, size, name='legacy_dense',
+                        use_bn='relu',
+                        is_training=True,:
+                        acitvation='relu'):
+  shape = (x.shape.as_list()[-1], size)
+  var =tf.get_variable(
+      name, dtype=tf.float32, shape=shape,
+      initializer=truncated_normal())
+  ts = tf.matmul(x, var)
+  if use_bn:
+    ts = tf.layers.batch_normalization(ts, training=is_training)
+  if activation:
+    act_fn = tf.nn.relu
+    try:
+      act_fn = getattr(tf.nn, activation)
+    except:
+      raise KeyError('tf.nn has no module: {}'.format(activation))
+    ts = act_fn(ts)
+  return ts
 
 
 def pinch(x, shape, name='', use_bias=False):
@@ -52,6 +82,30 @@ def pinch(x, shape, name='', use_bias=False):
     return tf.matmul(tf.matmul(left_var, x), right_var)
 
 
+def pinch_vec(x, size):
+  """
+  Pinch vec-(a, 1) to vec-(size, 1)
+  """
+  if len(x.shape) != 2:
+    raise ValueError('pinch shape must be rank 2.')
+  if x.shape[1] != 1:
+    raise ValueError('shape[1] must be 1.')
+  
+  scope = variable_scope.get_variable_scope()
+  if scope.name:
+    op_name = scope.name + '/pinch_vec'
+  else:
+    op_name = 'pinch_vec'
+
+  with tf.name_scope(scope_name, 'pinch_vec', []) as s:
+    full_name = s + '/' + op_name + '/left'
+    left_var = tf.get_variable(
+        full_name,
+        shape=(size, x.shape[0]),
+    )
+    return tf.matmul(left_var, x)
+
+
 def conv_layer(x, M1, M2,
                kernel_size=3, expand_dim=False,
                activation=None, padding='same'):
@@ -60,6 +114,10 @@ def conv_layer(x, M1, M2,
   kernel = arbitrary value.
   int(M2 / stride) == 3 * M2 / M1 == 6     (1)
   int(M2 / stride) == 3                    (2)
+
+  Args:
+    M2: first_dim of input.
+    M1: second_dim of input.
   """
   x = tf.reshape(1, M2, M1)
   if expand_dim:
@@ -80,8 +138,8 @@ def conv_layer(x, M1, M2,
                             stride,
                             activation=activation,
                             padding=padding)
-  conv_tensor = net(x)
-  return tf.squeeze(conv_tensor)
+  conv_tensor = net(x)  # (1, 3 * M2 / M1, M1)
+  return tf.shape(conv_tensor, (3 * M2 / M1, M1))
 
 
 def randomly_down_sample(x, num_points):
@@ -96,4 +154,12 @@ def randomly_down_sample(x, num_points):
 
   indices = tf.random.uniform((num_points, ), minval=0, maxval=self.length, dtype=tf.int32)
   return tf.gather(x, indices)
+
+
+def get_multi_resolution_clouds(cloudx):
+  size = cloud.length
+  bold_cloud = cloudx.down_sample(ctx.PPD_M1)
+  mid_cloud = cloudx.down_sample(ctx.PPD_M2)
+  fine_cloud = cloudx
+  return (bold_cloud, mid_cloud, fine_cloud)
 

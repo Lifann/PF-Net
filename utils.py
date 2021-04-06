@@ -29,3 +29,7 @@ def size_from_shape(shape):
   for x in shape:
     t *= x
   return t
+
+def index_from_file(fname):
+  str_id = fname.split(',')[0]
+  return int(str_id)
