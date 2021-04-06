@@ -60,44 +60,44 @@ def train():
   test_clouds_y_mid = []
   test_clouds_y_fine = []
 
-  # Load training data.
-  for idx, afile in enumerate(train_files):
-    data, color = dl.arrays_from_file(afile)
-    category = utils.index_from_file(afile)
-    cloud = PointCloud(category, data=data, color=color)
-    cloud = cloud.normalize()
+  ## Load training data.
+  #for idx, afile in enumerate(train_files):
+  #  data, color = dl.arrays_from_file(afile)
+  #  category = utils.index_from_file(afile)
+  #  cloud = PointCloud(category, data=data, color=color)
+  #  cloud = cloud.normalize()
 
-    cloud = cloud.down_sample(ctx.num_sampled)
+  #  cloud = cloud.down_sample(ctx.num_sampled)
 
-    # TODO ---->
+  #  # TODO ---->
 
-    incomplete_cloud, cropped_cloud = cloud.crop(
-        ctx.num_cropped,
-        remove_cropped=True,
-        return_holowed=True,
-        reuse=True)
+  #  incomplete_cloud, cropped_cloud = cloud.crop(
+  #      ctx.num_cropped,
+  #      remove_cropped=True,
+  #      return_holowed=True,
+  #      reuse=True)
 
-    train_clouds_x.append(incomplete_cloud)
-    train_clouds_y.append(cropped_cloud)
+  #  train_clouds_x.append(incomplete_cloud)
+  #  train_clouds_y.append(cropped_cloud)
 
-  # Load testing data for check.
-  for idx, afile in enumerate(test_files):
-    data, color = dl.arrays_from_file(afile)
-    category = utils.index_from_file(afile)
-    cloud = PointCloud(category, data=data, color=color)
-    cloud = cloud.down_sample(ctx.num_sampled)
-    incomplete_cloud, cropped_cloud = cloud.crop(
-        ctx.num_cropped,
-        remove_cropped=True,
-        return_holowed=True,
-        reuse=True)
+  ## Load testing data for check.
+  #for idx, afile in enumerate(test_files):
+  #  data, color = dl.arrays_from_file(afile)
+  #  category = utils.index_from_file(afile)
+  #  cloud = PointCloud(category, data=data, color=color)
+  #  cloud = cloud.down_sample(ctx.num_sampled)
+  #  incomplete_cloud, cropped_cloud = cloud.crop(
+  #      ctx.num_cropped,
+  #      remove_cropped=True,
+  #      return_holowed=True,
+  #      reuse=True)
 
-    test_clouds_x.append(incomplete_cloud)
-    test_clouds_y.append(cropped_cloud)
+  #  test_clouds_x.append(incomplete_cloud)
+  #  test_clouds_y.append(cropped_cloud)
 
-  session = tf.Session()
+  #session = tf.Session()
 
-  for epoch in range(args.epoch_num):
-    for idx, cloud in enumerate(train_clouds):
-      session.run(model.train_op, feed_dict={model.x: cloud.data,
-                                             model.y_gt: })
+  #for epoch in range(args.epoch_num):
+  #  for idx, cloud in enumerate(train_clouds):
+  #    session.run(model.train_op, feed_dict={model.x: cloud.data,
+  #                                           model.y_gt: })
