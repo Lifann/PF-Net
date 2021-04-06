@@ -1,5 +1,6 @@
 import numpy as np
 import random
+import os
 
 
 def random_view():
@@ -31,5 +32,6 @@ def size_from_shape(shape):
   return t
 
 def index_from_file(fname):
-  str_id = fname.split(',')[0]
+  fname = os.path.basename(fname)
+  str_id = fname.split('.')[0]
   return int(str_id)

@@ -158,7 +158,7 @@ def randomly_down_sample(x, num_points):
 
 
 def get_multi_resolution_clouds(cloudx):
-  size = cloud.length
+  size = cloudx.length
   bold_cloud = cloudx.down_sample(ctx.PPD_M1)
   mid_cloud = cloudx.down_sample(ctx.PPD_M2)
   fine_cloud = cloudx

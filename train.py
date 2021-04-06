@@ -6,6 +6,7 @@ from model import Model
 from point_cloud import PointCloud
 
 import argparse
+import common
 import data_loader as dl
 import os
 import tensorflow as tf
@@ -39,8 +40,8 @@ def train():
   data_root = args.dataset
   train_path = os.path.join(data_root, 'train')
   test_path = os.path.join(data_root, 'test')
-  train_files = os.listdir(train_path)
-  test_files = os.listdir(test_path)
+  train_files = [os.path.join(train_path, f) for f in os.listdir(train_path)]
+  test_files = [os.path.join(test_path, f) for f in os.listdir(test_path)]
 
   # Build model
   model = build_model()
@@ -61,14 +62,14 @@ def train():
     data, color = dl.arrays_from_file(afile)
     category = utils.index_from_file(afile)
     cloud = PointCloud(category, data=data, color=color)
-    cloud = cloud.normalize()
+    cloud.normalize()
 
     cloud = cloud.down_sample(ctx.num_sampled)
 
     incomplete_cloud, cropped_cloud = cloud.crop(
         ctx.num_cropped,
         remove_cropped=True,
-        return_holowed=True,
+        return_hollowed=True,
         reuse=True)
     cropped_cloud_bold, cropped_cloud_mid, cropped_cloud_fine =  \
         common.get_multi_resolution_clouds(cropped_cloud)
@@ -79,21 +80,31 @@ def train():
     train_clouds_y_fine.append(cropped_cloud_fine)
 
   ## Load testing data for check.
-  for idx, afile in enumerate(train_files):
+  for idx, afile in enumerate(test_files):
     data, color = dl.arrays_from_file(afile)
     category = utils.index_from_file(afile)
     cloud = PointCloud(category, data=data, color=color)
+    cloud.normalize()
+
     cloud = cloud.down_sample(ctx.num_sampled)
+
     incomplete_cloud, cropped_cloud = cloud.crop(
         ctx.num_cropped,
         remove_cropped=True,
-        return_holowed=True,
+        return_hollowed=True,
         reuse=True)
+    cropped_cloud_bold, cropped_cloud_mid, cropped_cloud_fine =  \
+        common.get_multi_resolution_clouds(cropped_cloud)
 
-    train_clouds_x.append(incomplete_cloud)
-    train_clouds_y.append(cropped_cloud)
+    test_clouds_x.append(incomplete_cloud)
+    test_clouds_y_bold.append(cropped_cloud_bold)
+    test_clouds_y_mid.append(cropped_cloud_mid)
+    test_clouds_y_fine.append(cropped_cloud_fine)
 
-  #session = tf.Session()
+  config = tf.ConfigProto()
+  config.inter_op_parallelism_threads = 0
+  config.intra_op_parallelism_threads = 0
+  session = tf.Session(config=config)
 
   #for epoch in range(args.epoch_num):
   #  for idx, cloud in enumerate(train_clouds):
@@ -102,3 +113,4 @@ def train():
 
 if __name__ == '__main__':
   train()
+  print('ok')
