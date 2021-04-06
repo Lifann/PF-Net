@@ -29,18 +29,14 @@ ctx.device = '/CPU:0' if args.gpu < 0 else '/GPU:{}'.format(args.gpu)
 
 
 def build_model():
-  incomplete_part = tf.placeholder(tf.float32)
-  missing_part = tf.placeholder(tf.float32)
-
-  model = Model(x=incomplete_part,
-                y=missing_part)
+  model = Model()
   model.build()
   return model
 
 
 # TODO
 def train():
-  data_root = os.path.listdir(args.dataset)
+  data_root = args.dataset
   train_path = os.path.join(data_root, 'train')
   test_path = os.path.join(data_root, 'test')
   train_files = os.listdir(train_path)

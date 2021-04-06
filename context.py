@@ -41,4 +41,8 @@ class Context(object):
     self.ADLOSS_agg_num = 3
     self.ADLOSS_nn_size=[256, 128, 16, 1]
 
+    # details
+    self.max_pool_kernel = (1, 1, 3, 1)
+    self.max_pool_stride = (1, 1, 1, 1)
+
 ctx = Context()

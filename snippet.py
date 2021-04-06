@@ -6,6 +6,8 @@ for better readability.
 from context import ctx
 
 import common
+import tensorflow as tf
+import utils
 
 
 def CMLP(xyz, nn_sizes, name='CMLP', use_bn=False,
@@ -36,6 +38,7 @@ def CMLP(xyz, nn_sizes, name='CMLP', use_bn=False,
   out = []
   for i, size in enumerate(nn_sizes):
     layer_name = name + '_' + str(i) + '_' +str(size)
+    x = xyz
     x = common.dense_layer(x,
                            size,
                            name=layer_name,
@@ -44,13 +47,14 @@ def CMLP(xyz, nn_sizes, name='CMLP', use_bn=False,
                            activation=activation,
                            is_training=ctx.is_training,
                            use_legacy=use_legacy,
-                           **kwargs)
+                           **kwargs)  # (3, U)
     if i < len(nn_sizes) - agg_num:
       continue
     else:
       # Record tensor for concat
       x = tf.reshape(x, [1, 1] + list(x.shape))
-      x = tf.nn.max_pool(x, (1, 1, 3, 1), 'VALID')
+      x = tf.nn.max_pool(x, ctx.max_pool_kernel, ctx.max_pool_stride, padding='VALID')
+      x = tf.reshape(x, (1, -1))
       out.append(x)
   latent_feature = tf.concat(out, axis=1)  # (1, R)
   tensor_size = utils.size_from_shape(latent_feature.shape)
@@ -71,7 +75,7 @@ def MRE(cloud_data, k=2, nn_sizes=[], agg_num=4):
   """
   detail_data = cloud_data
 
-  num_points = int(detail_data.shape[0] / k)
+  num_points = int(detail_data.shape.as_list()[0] / k)
   secondary_data = common.randomly_down_sample(detail_data, num_points)
 
   num_points = int(num_points / k)
@@ -86,18 +90,18 @@ def MRE(cloud_data, k=2, nn_sizes=[], agg_num=4):
     final_latent_map.append(latent_vec)
   final_latent_map = tf.concat(final_latent_map, axis=1)  # (R, 3)
 
-  final_feature_vec = dense_layer(final_latent_map,
-                                  1,
-                                  use_bias=True,
-                                  use_bn=True,
-                                  is_training=ctx.is_training,
-                                  activation='relu')  # (R, 1)
-  final_feature_vec = dense_layer(final_latent_map,
-                                  1,
-                                  use_bias=True,
-                                  use_bn=True,
-                                  is_training=ctx.is_training,
-                                  activation='linear')  # (R, 1)
+  final_feature_vec = common.dense_layer(final_latent_map,
+                                         1,
+                                         use_bias=True,
+                                         use_bn=True,
+                                         is_training=ctx.is_training,
+                                         activation='relu')  # (R, 1)
+  final_feature_vec = common.dense_layer(final_latent_map,
+                                         1,
+                                         use_bias=True,
+                                         use_bn=True,
+                                         is_training=ctx.is_training,
+                                         activation='linear')  # (R, 1)
 
   return final_feature_vec
 
@@ -120,7 +124,8 @@ def PPD(feature_vec,
     M2: secondary branch size.
     FC_sizes: output sizes of FC layers. It's length must be 3.
   """
-  detail_fc = common.dense_layer(final_feature_vec,
+  feature_vec = tf.reshape(feature_vec, (1, -1))
+  detail_fc = common.dense_layer(feature_vec,
                                  FC_sizes[0],
                                  use_bias=True,
                                  use_bn=False,
@@ -146,7 +151,7 @@ def PPD(feature_vec,
                                  kernel_size=3,
                                  expand_dim=True,
                                  activation='relu')
-  secondary_map = tf.reshape(secondary_map, (M2, M2 / M1, 3))
+  secondary_map = tf.reshape(secondary_map, (M2, int(M2 / M1), 3))
 
   primary_fc = common.dense_layer(final_feature_vec,
                                     FC_sizes[1],
