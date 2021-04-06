@@ -112,7 +112,7 @@ def get_stride(C, W, K):
 
 def conv_layer(x, M1, M2,
                kernel_size=3, expand_dim=False,
-               activation=None, padding='same'):
+               activation=None, padding='valid'):
   """
   filter = M1
   kernel = arbitrary value.
@@ -123,30 +123,30 @@ def conv_layer(x, M1, M2,
     M2: first_dim of input.
     M1: second_dim of input.
   """
-  #x = tf.reshape(x, (M2, M1))
+  x = tf.reshape(x, (M2, M1))
   if expand_dim:
     target_dim = int(3 * M2 / M1)
   else:
     target_dim = 3
 
-  #test_strides = [int(M2 / target_dim), int(M2 / target_dim) + 1]
-  #if int(M2 / test_strides[0]) == target_dim:
-  #  stride = test_strides[0]
-  #elif int(M2 / test_strides[1]) == target_dim:
-  #  stride = test_strides[0]
-  #else:
-  #  # This should never happen.
-  #  raise ValueError('Cannot get valid stride for convolution.')
-
-  stride = get_stride(target_dim, M2, 0)
+  stride = get_stride(target_dim, M2, kernel_size)
+  print('[DEBUG] stride: ', stride)
+  print('[DEBUG] target_dim: ', target_dim)
   x = tf.expand_dims(x, 0)
+  print('[DEBUG] M2: ', M2, ' M1: ', M1)
+  print('[DEBUG] x: ', x.shape)
   net = keras.layers.Conv1D(M1,
                             kernel_size,
                             stride,
                             activation=activation,
                             padding=padding)
   conv_tensor = net(x)  # (1, 3 * M2 / M1, M1)
-  return tf.reshape(conv_tensor, (target_dim, M1))
+  print('[DEBUG] x_after: ', conv_tensor.shape)
+  conv_tensor = tf.reshape(conv_tensor, (target_dim, M1))
+  #conv_tensor = tf.squeeze(conv_tensor)
+  print('[DEBUG] x_after: ', conv_tensor.shape)
+  return conv_tensor
+  #return tf.reshape(conv_tensor, (target_dim, M1))
 
 
 def randomly_down_sample(x, num_points):

@@ -138,6 +138,9 @@ def PPD(feature_vec,
                                  expand_dim=True,
                                  activation='relu')
   detail_map = tf.reshape(detail_map, (M2, int(M / M2), 3))
+  print('[DEBUG] detail_map: ', detail_map.shape)
+  print('[DEBUG] fc1')
+  print('\n\n\n')
 
   secondary_fc = common.dense_layer(feature_vec,
                                     FC_sizes[1],
@@ -151,10 +154,13 @@ def PPD(feature_vec,
                                     kernel_size=3,
                                     expand_dim=True,
                                     activation='relu')
+  print('[DEBUG] sec_map: ', secondary_map.shape)
+  print('[DEBUG] fc2')
+  print('\n\n\n')
   secondary_map = tf.reshape(secondary_map, (M2, int(M2 / M1), 3))
 
   primary_fc = common.dense_layer(feature_vec,
-                                  FC_sizes[1],
+                                  FC_sizes[2],
                                   use_bias=True,
                                   use_bn=False,
                                   is_training=ctx.is_training,
@@ -165,6 +171,7 @@ def PPD(feature_vec,
                                   kernel_size=3,
                                   expand_dim=False,  # primary branch do not expand_dim.
                                   activation='relu')
+  print('[DEBUG] fc3')
   primary_out = primary_map
 
   secondary_out = tf.reshape(
