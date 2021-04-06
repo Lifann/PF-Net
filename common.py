@@ -107,7 +107,7 @@ def pinch_vec(x, size):
 
 
 def get_stride(C, W, K):
-  return int((W - K) / (C - 1))
+  return max(int((W - K) / (C - 1)), 1)
 
 
 def conv_layer(x, M1, M2,
@@ -130,23 +130,15 @@ def conv_layer(x, M1, M2,
     target_dim = 3
 
   stride = get_stride(target_dim, M2, kernel_size)
-  print('[DEBUG] stride: ', stride)
-  print('[DEBUG] target_dim: ', target_dim)
   x = tf.expand_dims(x, 0)
-  print('[DEBUG] M2: ', M2, ' M1: ', M1)
-  print('[DEBUG] x: ', x.shape)
   net = keras.layers.Conv1D(M1,
                             kernel_size,
                             stride,
                             activation=activation,
                             padding=padding)
   conv_tensor = net(x)  # (1, 3 * M2 / M1, M1)
-  print('[DEBUG] x_after: ', conv_tensor.shape)
   conv_tensor = tf.reshape(conv_tensor, (target_dim, M1))
-  #conv_tensor = tf.squeeze(conv_tensor)
-  print('[DEBUG] x_after: ', conv_tensor.shape)
   return conv_tensor
-  #return tf.reshape(conv_tensor, (target_dim, M1))
 
 
 def randomly_down_sample(x, num_points):

@@ -125,6 +125,8 @@ def PPD(feature_vec,
     FC_sizes: output sizes of FC layers. It's length must be 3.
   """
   feature_vec = tf.reshape(feature_vec, (1, -1))
+
+  # detail
   detail_fc = common.dense_layer(feature_vec,
                                  FC_sizes[0],
                                  use_bias=True,
@@ -138,11 +140,9 @@ def PPD(feature_vec,
                                  expand_dim=True,
                                  activation='relu')
   detail_map = tf.reshape(detail_map, (M2, int(M / M2), 3))
-  print('[DEBUG] detail_map: ', detail_map.shape)
-  print('[DEBUG] fc1')
-  print('\n\n\n')
 
-  secondary_fc = common.dense_layer(feature_vec,
+  # secondary
+  secondary_fc = common.dense_layer(detail_fc,
                                     FC_sizes[1],
                                     use_bias=True,
                                     use_bn=False,
@@ -154,12 +154,10 @@ def PPD(feature_vec,
                                     kernel_size=3,
                                     expand_dim=True,
                                     activation='relu')
-  print('[DEBUG] sec_map: ', secondary_map.shape)
-  print('[DEBUG] fc2')
-  print('\n\n\n')
-  secondary_map = tf.reshape(secondary_map, (M2, int(M2 / M1), 3))
+  secondary_map = tf.reshape(secondary_map, (M1, int(M2 / M1), 3))
 
-  primary_fc = common.dense_layer(feature_vec,
+  # primary
+  primary_fc = common.dense_layer(secondary_fc,
                                   FC_sizes[2],
                                   use_bias=True,
                                   use_bn=False,
@@ -167,18 +165,13 @@ def PPD(feature_vec,
                                   activation='relu')
   primary_map = common.pinch_vec(primary_fc, 3 * M1)
   primary_map = tf.reshape(primary_map, (M1, 3))
-  primary_map = common.conv_layer(primary_map, M1, 3,
-                                  kernel_size=3,
-                                  expand_dim=False,  # primary branch do not expand_dim.
-                                  activation='relu')
-  print('[DEBUG] fc3')
   primary_out = primary_map
 
   secondary_out = tf.reshape(
-      tf.expand_dims(primary_out) + secondary_map,
+      tf.expand_dims(primary_out, 1) + secondary_map,
       (M2, 3))
   detail_out = tf.reshape(
-      tf.expand_dims(secondary_out) + detail_map,
+      tf.expand_dims(secondary_out, 1) + detail_map,
       (M, 3))
 
   return primary_out, secondary_out, detail_out
