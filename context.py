@@ -28,6 +28,7 @@ class Context(object):
     self.MRE_agg_num = 4
 
     # PPD
+    # M : M2 : M1 is a divisiable sequence.
     self.PPD_M = self.num_cropped
     self.PPD_M1 = 64
     self.PPD_M2 = 128
