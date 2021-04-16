@@ -48,6 +48,8 @@ def train():
 
   # Build model
   model = build_model()
+  #print('ok')
+  #sys.exit(0)
 
   # Load training data
   train_clouds_x = []

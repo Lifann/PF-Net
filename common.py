@@ -108,13 +108,19 @@ def pinch_vec(x, size):
     return tf.matmul(x, right_var)
 
 
-def get_stride(C, W, K):
-  return max(int((W - K) / (C - 1)), 1)
-
+#def get_stride(C, W, K):
+#  return max(int((W - K) / (C - 1)), 1)
+def get_strides(target_steps, source_steps):
+  assert source_steps > target_steps, "source must be great equal to target."
+  if source_steps % target_steps == 0:
+    return int(source_steps / target_steps)
+  else:
+    return int(source_steps / target_steps) + 1
+  
 
 def conv_layer(x, M1, M2,
-               kernel_size=3, expand_dim=False,
-               activation=None, padding='valid'):
+               kernel_size=3, is_bold=False,
+               activation=None, padding='same'):
   """
   filter = M1
   kernel = arbitrary value.
@@ -126,20 +132,26 @@ def conv_layer(x, M1, M2,
     M1: second_dim of input.
   """
   x = tf.reshape(x, (M2, M1))
-  if expand_dim:
-    target_dim = int(3 * M2 / M1)
+  if not is_bold:
+    assert M2 % M1 == 0, "M2 must be divisiable to M1 if not bold."
+    target_steps = int(3 * M2 / M1)
+    filt_dim = M1
+    strides = get_strides(target_steps, M2)
   else:
-    target_dim = 3
+    target_steps = M2
+    filt_dim = 3
+    strides = 1
 
-  stride = get_stride(target_dim, M2, kernel_size)
   x = tf.expand_dims(x, 0)
-  net = keras.layers.Conv1D(M1,
+  net = keras.layers.Conv1D(filt_dim,
                             kernel_size,
-                            stride,
+                            strides=strides,
                             activation=activation,
-                            padding=padding)
+                            padding=padding,
+                            input_shape=(M2, filt_dim))
+
   conv_tensor = net(x)  # (1, 3 * M2 / M1, M1)
-  conv_tensor = tf.reshape(conv_tensor, (target_dim, M1))
+  conv_tensor = tf.reshape(conv_tensor, (target_steps, filt_dim))
   return conv_tensor
 
 

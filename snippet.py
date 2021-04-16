@@ -137,8 +137,9 @@ def PPD(feature_vec,
   detail_map = tf.reshape(detail_map, (M, M2))
   detail_map = common.conv_layer(detail_map, M2, M,
                                  kernel_size=3,
-                                 expand_dim=True,
+                                 is_bold=False,
                                  activation='relu')
+  print('[DEBUG] detail_conv: ', detail_map.shape)
   detail_map = tf.reshape(detail_map, (M2, int(M / M2), 3))
 
   # secondary
@@ -152,8 +153,9 @@ def PPD(feature_vec,
   secondary_map = tf.reshape(secondary_map, (M1, M2))
   secondary_map = common.conv_layer(secondary_map, M1, M2,
                                     kernel_size=3,
-                                    expand_dim=True,
+                                    is_bold=False,
                                     activation='relu')
+  print('[DEBUG] secondary_conv: ', secondary_map.shape)
   secondary_map = tf.reshape(secondary_map, (M1, int(M2 / M1), 3))
 
   # primary
@@ -165,6 +167,11 @@ def PPD(feature_vec,
                                   activation='relu')
   primary_map = common.pinch_vec(primary_fc, 3 * M1)
   primary_map = tf.reshape(primary_map, (M1, 3))
+  primary_map = common.conv_layer(primary_map, 3, M1,
+                                  kernel_size=3,
+                                  is_bold=True,
+                                  activation='relu')
+  print('[DEBUG] primary_conv: ', primary_map.shape)
   primary_out = primary_map
 
   secondary_out = tf.reshape(

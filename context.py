@@ -31,7 +31,7 @@ class Context(object):
     # M : M2 : M1 is a divisiable sequence.
     self.PPD_M = self.num_cropped
     self.PPD_M1 = 64
-    self.PPD_M2 = 128
+    self.PPD_M2 = 256
     self.PPD_FC_sizes = [1024, 512, 256]
 
     # AD
