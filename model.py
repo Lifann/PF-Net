@@ -20,6 +20,11 @@ class Model(object):
   # TODO
   def build(self):
     # TODO: build model
+    feature_vec = snippet.MRE(self.x,
+                              k=ctx.MRE_k,
+                              nn_sizes=ctx.MRE_nn_sizes,
+                              agg_num=ctx.MRE_agg_num)
+    print('[DEBUG] MRE get feature vec: {}'.format(feature_vec.shape))
 
     #self.optimizer = tf.train.AdamOptimizer(learning_rate=ctx.learning_rate,
     #                                        beta1=ctx.beta1,

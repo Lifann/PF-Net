@@ -49,6 +49,7 @@ def train():
   # Build model
   model = build_model()
 
+  '''
   # Load training data
   train_clouds_x = []
   train_clouds_y_bold = []
@@ -153,6 +154,7 @@ def train():
         #    feed_dict={model.x: train_clouds_x[idx].data})
         #save_path = 'tmp/train/cat{}_step{}_pred.png'.format(mark, step)
         #vision.show_3d_data(save_path, data, train_clouds_y_fine[index].color)
+  '''
       
 
 if __name__ == '__main__':
