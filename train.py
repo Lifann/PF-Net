@@ -135,22 +135,24 @@ def train():
 
     for idx, _ in enumerate(train_clouds_x):
       start_time = time.time()
-      _, loss = session.run(
-          [model.train_op, model.loss],
-          feed_dict={model.x: train_clouds_x[idx].data,
-                     model.y_gt_bold: train_clouds_y_bold[idx].data,
-                     model.y_gt_mid: train_clouds_y_mid[idx].data,
-                     model.y_gt_fine: train_clouds_y_fine[idx].data})
+      # TODO: re-design model
+      #_, loss = session.run(
+      #    [model.train_op, model.loss],
+      #    feed_dict={model.x: train_clouds_x[idx].data,
+      #               model.y_gt_bold: train_clouds_y_bold[idx].data,
+      #               model.y_gt_mid: train_clouds_y_mid[idx].data,
+      #               model.y_gt_fine: train_clouds_y_fine[idx].data})
       step += 1
       end_time = time.time()
       step_cost = end_time - start_time
       print('[info] epoch: {}, step={}, loss={}'.format(epoch, step, loss))
       if step % 100 == 0:
-        data = session.run(
-            model.y_fine,
-            feed_dict={model.x: train_clouds_x[idx].data})
-        save_path = 'tmp/train/cat{}_step{}_pred.png'.format(mark, step)
-        vision.show_3d_data(save_path, data, train_clouds_y_fine[index].color)
+        # TODO: re-design model
+        #data = session.run(
+        #    model.y_fine,
+        #    feed_dict={model.x: train_clouds_x[idx].data})
+        #save_path = 'tmp/train/cat{}_step{}_pred.png'.format(mark, step)
+        #vision.show_3d_data(save_path, data, train_clouds_y_fine[index].color)
       
 
 if __name__ == '__main__':
